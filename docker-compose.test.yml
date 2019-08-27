@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  nginx-njs:
+    volumes:
+      - ./test/port_httpproxy.map:/etc/nginx/port_httpproxy.map:ro
+      - ./test/nginx_log_njs:/var/log/nginx
+    ports:
+      - "19118-19120:19118-19120"
+    environment:
+      - NGINX_FIRST_PORT=19118
+      - NGINX_LAST_PORT=19120
+
+  httpproxyserver1:
+    image: ruby:2-alpine
+    volumes:
+      - ./test/httpproxyserver.rb:/usr/local/bin/httpproxyserver.rb:ro
+    command: ruby /usr/local/bin/httpproxyserver.rb
+    ports:
+      - 18118:8118
+    hostname: httpproxyserver1
+
+  httpproxyserver2:
+    image: ruby:2-alpine
+    volumes:
+      - ./test/httpproxyserver_with_auth.rb:/usr/local/bin/httpproxyserver_with_auth.rb:ro
+    command: ruby /usr/local/bin/httpproxyserver_with_auth.rb
+    ports:
+      - 18119:8118
+    hostname: httpproxyserver2
+
+  httpserver:
+    image: ruby:2-alpine
+    volumes:
+      - ./test/httpserver.rb:/usr/local/bin/httpserver.rb:ro
+    command: ruby /usr/local/bin/httpserver.rb
+    ports:
+      - 18080:80

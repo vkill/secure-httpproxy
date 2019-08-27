@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  nginx-njs:
+    image: nginx:1.17-alpine
+    volumes:
+      - ./nginx/nginx.conf.template_njs:/etc/nginx/nginx.conf.template:ro
+      - ./nginx/secure_httpproxy_stream.js:/etc/nginx/secure_httpproxy_stream.js:ro
+      - ./nginx/port_httpproxy.map:/etc/nginx/port_httpproxy.map:ro
+      - ./nginx/cert:/etc/nginx/cert:ro
+      - ./nginx_log_njs:/var/log/nginx
+    ports:
+      - "9118-9118:9118-9118"
+    environment:
+      - NGINX_FIRST_PORT=9118
+      - NGINX_LAST_PORT=9118
+    command: /bin/sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
